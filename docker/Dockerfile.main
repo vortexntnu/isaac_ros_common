@@ -1,0 +1,56 @@
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
+SHELL ["/bin/bash", "-c"]
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    python3-argcomplete \
+    python3-colcon-common-extensions \
+    python3-vcstool \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install ROS dependencies using rosdep
+RUN apt-get update && rosdep update
+# RUN rosdep install --from-paths  --ignore-src -r -y
+
+# Install Isaac ROS packages
+RUN apt-get update && apt-get install -y \ 
+    ros-humble-isaac-ros-common \
+    ros-humble-isaac-ros-dnn-image-encoder \
+    ros-humble-isaac-ros-tensor-rt \
+    ros-humble-isaac-ros-h264-decoder \
+    ros-humble-isaac-ros-image-pipeline \
+    ros-humble-isaac-ros-nitros \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+RUN apt-get update && apt-get install -y \
+    libgeographic-dev  \
+    ros-humble-geographic-info \
+    ros-humble-nmea-msgs \
+    ros-humble-robot-localization \
+    ros-humble-xacro \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Example step to show the output of 'pwd'
+RUN pwd >&2
+
+# Example step to list files in the current directory and show the output
+RUN ls -la >&2
+
+#COPY /home/vortex/perception_isaac_integration_ws/src .
+# run rosdep install
+#RUN apt-get update && rosdep update
+# RUN rosdep install src --from-paths  --ignore-src -r -y # WHY ARE NOT WORKDING ANYMORE! THIS WORKED LAST WEEK! wtf!
+# Install dependencies using rosdep
+#RUN apt-get update -y || true && rosdep update && \
+ # rosdep install --from-paths src --ignore-src -r -y && \
+#  rm -rf /var/lib/apt/lists/*
+#RUN rosdep install --from-paths src --ignore-src -r -y
+
+
+# Set environment variables or any necessary configurations
+ENV MODEL_PATH=/app/models/objects_performance_3.2.model

@@ -281,7 +281,10 @@ docker run -it --rm \
     --network host \
     ${DOCKER_ARGS[@]} \
     -v $ISAAC_ROS_DEV_DIR:/workspaces/isaac_ros-dev \
+    -v /usr/local/zed/resources:/usr/local/zed/resources \
+    -v /dev/bus/usb:/dev/bus/usb \
     -v /etc/localtime:/etc/localtime:ro \
+    -v /home/vortex/perception_isaac_integration_ws/ \
     --name "$CONTAINER_NAME" \
     --runtime nvidia \
     --user="admin" \

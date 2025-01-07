@@ -8,7 +8,7 @@
 # distribution of this software and related documentation without an express
 # license agreement from NVIDIA CORPORATION is strictly prohibited.
 set -e
-
+set -x
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source $ROOT/utils/print_color.sh
 DOCKER_DIR="${ROOT}/../docker"
@@ -24,7 +24,7 @@ IGNORE_COMPOSITE_KEYS=0
 ADDITIONAL_BUILD_ARGS=()
 ADDITIONAL_DOCKER_ARGS=()
 DOCKER_SEARCH_DIRS=(${DOCKER_DIR})
-SKIP_REGISTRY_CHECK=0
+SKIP_REGISTRY_CHECK=1
 BASE_DOCKER_REGISTRY_NAMES=("nvcr.io/isaac/ros")
 
 # Read and parse config file if exists
