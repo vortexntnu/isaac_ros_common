@@ -284,7 +284,7 @@ docker run -it --rm \
     -v /usr/local/zed/resources:/usr/local/zed/resources \
     -v /dev/bus/usb:/dev/bus/usb \
     -v /etc/localtime:/etc/localtime:ro \
-    -v /home/vortex/perception_isaac_integration_ws/ \
+    -v /home/vortex/perception_ws/ \
     --name "$CONTAINER_NAME" \
     --runtime nvidia \
     --user="admin" \
