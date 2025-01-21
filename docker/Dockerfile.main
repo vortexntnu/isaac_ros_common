@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
     python3-vcstool \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
-
+  
 # Install ROS dependencies using rosdep
 RUN apt-get update && rosdep update
 
@@ -23,20 +23,64 @@ RUN cd perception-auv && git fetch && git checkout 11-task-docker-dev-environmen
 WORKDIR /ros2_ws
 
 RUN rosdep update && rosdep install --from-paths src/ --ignore-src -r -y \
-&& rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
-RUN apt update && sudo apt install ros-${ROS_DISTRO}-spinnaker-camera-driver -y
+RUN apt update && apt install ros-${ROS_DISTRO}-spinnaker-camera-driver -y
 
-RUN ./src/perception-auv/submodules/vortex-blackfly-driver/spinnaker_camera_driver/cmake/download_spinnaker armv8 /opt/spinnaker jammy
+## remove submodule and just keep script?
+COPY scripts/download_spinnaker /usr/local/bin/
+RUN chmod +x /usr/local/bin/download_spinnaker
+RUN /usr/local/bin/download_spinnaker armv8 /opt/spinnaker jammy
 
-RUN ls
-RUN chmod +x ./src/perception-auv/submodules/isaac_ros_common/docker/scripts/install-zed-aarch64.sh && \
-   ./src/perception-auv/submodules/isaac_ros_common/docker/scripts/install-zed-aarch64.sh
+#RUN ./src/perception-auv/submodules/vortex-blackfly-driver/spinnaker_camera_driver/cmake/download_spinnaker armv8 /opt/spinnaker jammy
 
-RUN sudo usermod -aG zed admin
-
+# ZED SDK Installation
+WORKDIR /tmp
+RUN wget -q --no-check-certificate -O ZED_SDK_Linux.run https://stereolabs.sfo2.cdn.digitaloceanspaces.com/zedsdk/4.2/ZED_SDK_Tegra_L4T36.4_v4.2.2.zstd.run && \
+chmod +x ZED_SDK_Linux.run && \
+    ./ZED_SDK_Linux.run silent skip_od_module skip_python skip_drivers && \
+    ln -sf /usr/lib/aarch64-linux-gnu/tegra/libv4l2.so.0 /usr/lib/aarch64-linux-gnu/libv4l2.so && \
+    rm -rf /usr/local/zed/resources/* ZED_SDK_Linux.run
 
 RUN rm -rf /ros2_ws
+
+RUN apt-get update -y && \
+    apt-get install -y ros-humble-isaac-ros-yolov8 ros-humble-isaac-ros-dnn-image-encoder ros-humble-isaac-ros-tensor-rt && \
+    apt-get install -y ros-humble-isaac-ros-examples ros-humble-isaac-ros-stereo-image-proc ros-humble-isaac-ros-zed
+    
+RUN pip3 install --no-cache-dir \
+    ipykernel \
+    jupyter \
+    roboflow \
+    ultralytics \
+    "requests>=2.25.1,<2.29.0" \
+    "urllib3>=1.25.11,<2.0.0" \
+    "requests-toolbelt>=0.9.1,<1.0.0"
+
+# The above ultralytics installation will install Torch and Torchvision. 
+# However, these 2 packages installed via pip are not compatible to run on Jetson platform which is based on ARM64 architecture.
+# Therefore, we need to manually install pre-built PyTorch pip wheel and compile/ install Torchvision from source.
+# Install torch 2.5.0 and torchvision 0.20 according to JP6.1
+RUN pip3 install https://github.com/ultralytics/assets/releases/download/v0.0.0/torch-2.5.0a0+872d972e41.nv24.08-cp310-cp310-linux_aarch64.whl \
+    https://github.com/ultralytics/assets/releases/download/v0.0.0/torchvision-0.20.0a0+afc54f7-cp310-cp310-linux_aarch64.whl
+
+# Install cuSPARSELt to fix a dependency issue with torch 2.5.0
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/arm64/cuda-keyring_1.1-1_all.deb && \
+    dpkg -i cuda-keyring_1.1-1_all.deb && \
+    apt-get update && \
+    apt-get -y install libcusparselt0 libcusparselt-dev && \
+    rm -f cuda-keyring_1.1-1_all.deb
+
+
+# The onnxruntime-gpu package hosted in PyPI does not have aarch64 binaries for the Jetson.
+# So we need to manually install this package. This package is needed for some of the exports.
+RUN pip3 install --no-cache-dir \
+    https://github.com/ultralytics/assets/releases/download/v0.0.0/onnxruntime_gpu-1.20.0-cp310-cp310-linux_aarch64.whl
+
+# onnxruntime-gpu will automatically revert back the numpy version to latest.
+# So we need to reinstall numpy to 1.23.5 to fix an issue by executing:
+RUN pip3 install --no-cache-dir \
+    numpy==1.23.5
 
 # Set environment variables or any necessary configurations
 ENV MODEL_PATH=/app/models/objects_performance_3.2.model
