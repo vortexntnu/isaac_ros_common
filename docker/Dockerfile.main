@@ -18,8 +18,9 @@ WORKDIR /ros2_ws/src
 
 RUN git clone --recurse-submodules https://github.com/vortexntnu/perception-auv.git
 
-RUN cd perception-auv && git fetch && git submodule update --init --recursive 
-# RUN cd perception-auv && git fetch && git checkout 11-task-docker-dev-environment-on-orin && git submodule update --init --recursive 
+#RUN cd perception-auv && git submodule update --init --recursive
+
+RUN cd perception-auv && git fetch && git checkout main && git submodule update --init --recursive 
 
 WORKDIR /ros2_ws
 
