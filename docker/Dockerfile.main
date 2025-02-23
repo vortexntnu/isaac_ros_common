@@ -48,7 +48,8 @@ RUN rm -rf /ros2_ws
 
 RUN apt-get update -y && \
     apt-get install -y ros-humble-isaac-ros-yolov8 ros-humble-isaac-ros-dnn-image-encoder ros-humble-isaac-ros-tensor-rt && \
-    apt-get install -y ros-humble-isaac-ros-examples ros-humble-isaac-ros-stereo-image-proc ros-humble-isaac-ros-zed
+    apt-get install -y ros-humble-isaac-ros-examples ros-humble-isaac-ros-stereo-image-proc ros-humble-isaac-ros-zed && \
+    apt-get install -y ros-humble-isaac-ros-h264-encoder
     
 RUN pip3 install --no-cache-dir \
     ipykernel \
