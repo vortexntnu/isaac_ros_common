@@ -288,6 +288,7 @@ docker run -it --rm \
     -v $ISAAC_ROS_DEV_DIR:/workspaces/isaac_ros-dev \
     -v /etc/localtime:/etc/localtime:ro \
     -v /usr/local/zed/resources:/usr/local/zed/resources \
+    -v /usr/local/zed/settings:/usr/local/zed/settings \
     -v /dev:/dev \
     --name "$CONTAINER_NAME" \
     --runtime nvidia \
