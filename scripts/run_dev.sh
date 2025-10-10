@@ -45,6 +45,7 @@ ISAAC_ROS_DEV_DIR="${ISAAC_ROS_WS}"
 SKIP_IMAGE_BUILD=0
 VERBOSE=0
 VALID_ARGS=$(getopt -o hvd:i:ba: --long help,verbose,isaac_ros_dev_dir:,image_key:,skip_image_build,docker_arg: -- "$@")
+VALID_ARGS=$(getopt -o hvd:i:ba: --long help,verbose,isaac_ros_dev_dir:,image_key:,skip_image_build,docker_arg: -- "$@")
 eval set -- "$VALID_ARGS"
 while [ : ]; do
   case "$1" in
@@ -95,6 +96,7 @@ ON_EXIT+=("popd")
 # Fall back if isaac_ros_dev_dir not specified
 if [[ -z "$ISAAC_ROS_DEV_DIR" ]]; then
     ISAAC_ROS_DEV_DIR_DEFAULTS=("$HOME/workspaces/isaac" "/workspaces/isaac" "/mnt/nova_ssd/workspaces/isaac")
+    ISAAC_ROS_DEV_DIR_DEFAULTS=("$HOME/workspaces/isaac" "/workspaces/isaac" "/mnt/nova_ssd/workspaces/isaac")
     for ISAAC_ROS_DEV_DIR in "${ISAAC_ROS_DEV_DIR_DEFAULTS[@]}"
     do
         if [[ -d "$ISAAC_ROS_DEV_DIR" ]]; then
@@ -106,10 +108,12 @@ if [[ -z "$ISAAC_ROS_DEV_DIR" ]]; then
         ISAAC_ROS_DEV_DIR=$(realpath "$ROOT/../")
     fi
     print_warning "isaac not specified, assuming $ISAAC_ROS_DEV_DIR"
+    print_warning "isaac not specified, assuming $ISAAC_ROS_DEV_DIR"
 fi
 
 # Validate isaac_ros_dev_dir
 if [[ ! -d "$ISAAC_ROS_DEV_DIR" ]]; then
+    print_error "Specified isaac does not exist: $ISAAC_ROS_DEV_DIR"
     print_error "Specified isaac does not exist: $ISAAC_ROS_DEV_DIR"
     exit 1
 fi
@@ -154,6 +158,7 @@ if [[ $? -eq 0 ]]; then
         if [[ "$f" == "-" ]]; then
             print_error "LFS files are missing. Please re-clone repos after installing git-lfs."
             git lfs ls-files
+            git lfs ls-files
             exit 1
         fi
     done
@@ -162,7 +167,9 @@ fi
 # Determine base image key
 PLATFORM="$(uname -m)"
 BASE_IMAGE_KEY=$PLATFORM
+BASE_IMAGE_KEY=$PLATFORM
 if [[ ! -z "${IMAGE_KEY}" ]]; then
+    BASE_IMAGE_KEY=$BASE_IMAGE_KEY.$IMAGE_KEY
     BASE_IMAGE_KEY=$BASE_IMAGE_KEY.$IMAGE_KEY
 fi
 
@@ -193,12 +200,16 @@ if [ "$(docker ps -a --quiet --filter status=running --filter name=$CONTAINER_NA
     ISAAC_ROS_WS=$(docker exec $CONTAINER_NAME printenv ISAAC_ROS_WS)
     print_info "Docker workspace: $ISAAC_ROS_WS"
     docker exec -i -t -u admin --workdir $ISAAC_ROS_WS $CONTAINER_NAME /bin/bash $@
+    ISAAC_ROS_WS=$(docker exec $CONTAINER_NAME printenv ISAAC_ROS_WS)
+    print_info "Docker workspace: $ISAAC_ROS_WS"
+    docker exec -i -t -u admin --workdir $ISAAC_ROS_WS $CONTAINER_NAME /bin/bash $@
     exit 0
 fi
 
 # Summarize launch
 print_info "Launching Isaac ROS Dev container with image key ${BASE_IMAGE_KEY}: ${ISAAC_ROS_DEV_DIR}"
 
+# Build image to launch
 # Build image to launch
 if [[ $SKIP_IMAGE_BUILD -ne 1 ]]; then
     print_info "Building $BASE_IMAGE_KEY base as image: $BASE_NAME"
@@ -238,9 +249,17 @@ if [[ -n $SSH_AUTH_SOCK ]]; then
     DOCKER_ARGS+=("-v $SSH_AUTH_SOCK:/ssh-agent")
     DOCKER_ARGS+=("-e SSH_AUTH_SOCK=/ssh-agent")
 fi
+DOCKER_ARGS+=("-e HOST_USER_UID=`id -u`")
+DOCKER_ARGS+=("-e HOST_USER_GID=`id -g`")
+
+# Forward SSH Agent to container if the ssh agent is active.
+if [[ -n $SSH_AUTH_SOCK ]]; then
+    DOCKER_ARGS+=("-v $SSH_AUTH_SOCK:/ssh-agent")
+    DOCKER_ARGS+=("-e SSH_AUTH_SOCK=/ssh-agent")
+fi
 
 if [[ $PLATFORM == "aarch64" ]]; then
-    # DOCKER_ARGS+=("-e NVIDIA_VISIBLE_DEVICES=nvidia.com/gpu=all,nvidia.com/pva=all")
+    DOCKER_ARGS+=("-e NVIDIA_VISIBLE_DEVICES=nvidia.com/gpu=all,nvidia.com/pva=all")
     DOCKER_ARGS+=("-v /usr/bin/tegrastats:/usr/bin/tegrastats")
     DOCKER_ARGS+=("-v /tmp/:/tmp/")
     DOCKER_ARGS+=("-v /usr/lib/aarch64-linux-gnu/tegra:/usr/lib/aarch64-linux-gnu/tegra")
@@ -283,6 +302,7 @@ fi
 docker run -it --rm \
     --privileged \
     --network host \
+    --ipc=host \
     --ipc=host \
     ${DOCKER_ARGS[@]} \
     -v $ISAAC_ROS_DEV_DIR:/workspaces/isaac_ros-dev \
