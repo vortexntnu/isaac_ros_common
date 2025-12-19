@@ -1,0 +1,26 @@
+ARG BASE_IMAGE=ubuntu:22.04
+FROM ${BASE_IMAGE}
+
+ENV DEBIAN_FRONTEND=noninteractive
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-rosdep \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN rosdep init || true
+RUN rosdep update
+
+WORKDIR /workspaces/isaac_ros-dev
+
+COPY build/src/ ./src/
+
+RUN --mount=type=cache,target=/var/cache/apt \
+    --mount=type=cache,target=/var/lib/apt \
+    apt-get update && \
+    rosdep install \
+        --from-paths src \
+        --ignore-src \
+        --rosdistro humble \
+        -r -y && \
+    rm -rf /var/lib/apt/lists/*
