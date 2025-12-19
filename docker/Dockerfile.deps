@@ -35,3 +35,26 @@ RUN --mount=type=cache,target=/var/cache/apt \
         --ignore-src \
         --rosdistro humble \
         -r -y
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip3 install \
+        ipykernel \
+        jupyter \
+        roboflow \
+        ultralytics \
+        "requests>=2.25.1,<2.29.0" \
+        "urllib3>=1.25.11,<2.0.0" \
+        "requests-toolbelt>=0.9.1,<1.0.0"
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip3 install \
+        https://github.com/ultralytics/assets/releases/download/v0.0.0/onnxruntime_gpu-1.20.0-cp310-cp310-linux_aarch64.whl
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip3 install \
+        https://github.com/ultralytics/assets/releases/download/v0.0.0/torchvision-0.20.0a0+afc54f7-cp310-cp310-linux_aarch64.whl
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip3 install numpy==1.23.5
+
+ENV MODEL_PATH=/app/models/objects_performance_3.2.model
