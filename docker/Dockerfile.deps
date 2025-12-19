@@ -11,6 +11,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN rosdep init || true
 RUN rosdep update
 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ros-humble-isaac-ros-image-proc \
+    ros-humble-isaac-ros-dnn-image-encoder \
+    ros-humble-isaac-ros-tensor-rt \
+    ros-humble-isaac-ros-yolov8 \
+    ros-humble-isaac-ros-unet \
+    ros-humble-isaac-ros-stereo-image-proc \
+    ros-humble-isaac-ros-zed \
+    ros-humble-isaac-ros-h264-encoder \
+    ros-humble-isaac-ros-examples \
+ && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /workspaces/isaac_ros-dev
 
 COPY build/src/ ./src/
