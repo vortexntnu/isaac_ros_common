@@ -22,5 +22,4 @@ RUN --mount=type=cache,target=/var/cache/apt \
         --from-paths src \
         --ignore-src \
         --rosdistro humble \
-        -r -y && \
-    rm -rf /var/lib/apt/lists/*
+        -r -y
