@@ -1,0 +1,13 @@
+# --- ZED SDK ---
+-v /usr/local/zed:/usr/local/zed
+-v /usr/local/zed/resources:/usr/local/zed/resources
+
+# --- Spinnaker SDK ---
+-v /opt/spinnaker:/opt/spinnaker
+
+# --- Device + USB access (required for both cameras) ---
+-v /dev:/dev
+-v /dev/bus/usb:/dev/bus/usb
+
+# -- Environment Variables ---
+--env=LD_LIBRARY_PATH=/usr/local/zed/lib:/opt/spinnaker/lib
