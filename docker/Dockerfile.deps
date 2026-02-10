@@ -4,6 +4,9 @@ FROM ${BASE_IMAGE}
 ENV DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-c"]
 
+ARG TARGETARCH
+ARG TARGETPLATFORM
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-rosdep \
  && rm -rf /var/lib/apt/lists/*
@@ -47,12 +50,14 @@ RUN --mount=type=cache,target=/root/.cache/pip \
         "requests-toolbelt>=0.9.1,<1.0.0"
 
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip3 install \
-        https://github.com/ultralytics/assets/releases/download/v0.0.0/onnxruntime_gpu-1.20.0-cp310-cp310-linux_aarch64.whl
-
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip3 install \
-        https://github.com/ultralytics/assets/releases/download/v0.0.0/torchvision-0.20.0a0+afc54f7-cp310-cp310-linux_aarch64.whl
+    if [ "${TARGETARCH}" = "arm64" ]; then \
+        pip3 install \
+          https://github.com/ultralytics/assets/releases/download/v0.0.0/onnxruntime_gpu-1.20.0-cp310-cp310-linux_aarch64.whl && \
+        pip3 install \
+          https://github.com/ultralytics/assets/releases/download/v0.0.0/torchvision-0.20.0a0+afc54f7-cp310-cp310-linux_aarch64.whl ; \
+    else \
+        pip3 install onnxruntime-gpu==1.20.0 torchvision ; \
+    fi
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip3 install numpy==1.23.5
