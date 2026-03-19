@@ -86,7 +86,7 @@ if [ ! -d "$LIBREALSENSE_DIRECTORY" ] ; then
   # clone librealsense
   cd ${HOME}
   echo "${green}Cloning librealsense${reset}"
-  git clone https://github.com/IntelRealSense/librealsense.git
+  git clone https://github.com/realsenseai/librealsense.git
 fi
 
 # Is the version of librealsense current enough?
@@ -124,7 +124,13 @@ export CUDACXX=$NVCC_PATH
 export PATH=${PATH}:/usr/local/cuda/bin
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda/lib64
 
-/usr/bin/cmake ../ -DBUILD_EXAMPLES=true -DFORCE_RSUSB_BACKEND=true -DBUILD_WITH_CUDA="$USE_CUDA" -DCMAKE_BUILD_TYPE=release -DBUILD_PYTHON_BINDINGS=bool:true
+/usr/bin/cmake ../ \
+ -DBUILD_WITH_DDS=ON \
+ -DBUILD_WITH_CUDA="$USE_CUDA" \
+ -DBUILD_EXAMPLES=true \
+ -DBUILD_GRAPHICAL_EXAMPLES=true \
+ -DBUILD_PYTHON_BINDINGS=ON \
+ -DCMAKE_BUILD_TYPE=Release
 
 # The library will be installed in /usr/local/lib, header files in /usr/local/include
 # The demos, tutorials and tests will located in /usr/local/bin.

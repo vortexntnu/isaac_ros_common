@@ -11,16 +11,18 @@
 ARG BASE_IMAGE=ubuntu:22.04
 FROM ${BASE_IMAGE}
 
-ARG LIBREALSENSE_SOURCE_VERSION=v2.55.1
-ARG REALSENSE_ROS_GIT_URL=https://github.com/NVIDIA-ISAAC-ROS/realsense-ros.git
-ARG REALSENSE_ROS_VERSION=release/4.51.1-isaac
+ARG LIBREALSENSE_SOURCE_VERSION=v2.57.6
+ARG REALSENSE_ROS_GIT_URL=https://github.com/realsenseai/realsense-ros.git
+ARG REALSENSE_ROS_VERSION=r/4.57.6
 
 COPY scripts/build-librealsense.sh /opt/realsense/build-librealsense.sh
 COPY scripts/install-realsense-dependencies.sh /opt/realsense/install-realsense-dependencies.sh
+COPY scripts/realsense-dds-defaults.sh /usr/local/bin/scripts/entrypoint_additions/10-realsense-dds-defaults.sh
 
 RUN chmod +x /opt/realsense/install-realsense-dependencies.sh && \
     /opt/realsense/install-realsense-dependencies.sh; \
-    chmod +x /opt/realsense/build-librealsense.sh && /opt/realsense/build-librealsense.sh -v ${LIBREALSENSE_SOURCE_VERSION};
+    chmod +x /opt/realsense/build-librealsense.sh && /opt/realsense/build-librealsense.sh -v ${LIBREALSENSE_SOURCE_VERSION}; \
+    chmod +x /usr/local/bin/scripts/entrypoint_additions/10-realsense-dds-defaults.sh
 
 # Copy hotplug script for udev rules/hotplug for RealSense
 RUN mkdir -p /opt/realsense/

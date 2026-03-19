@@ -24,5 +24,5 @@ echo -e "${GREEN}Generating rosdep build workspace${RESET}"
 python3 "${COLLECT_SCRIPT}"
 
 exec "${RUN_DEV_SCRIPT}" \
-    --image_key ros2_humble.deps \
+    --image_key ros2_humble.deps.realsense \
     "$@"

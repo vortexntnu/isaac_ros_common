@@ -1,6 +1,12 @@
 ARG BASE_IMAGE=ubuntu:22.04
 FROM ${BASE_IMAGE}
 
+# FIX: remove broken Yarn repo from base image
+# TODO: make a better solution
+RUN rm -f /etc/apt/sources.list.d/yarn.list \
+    && rm -f /etc/apt/trusted.gpg.d/yarn.gpg \
+    && rm -f /usr/share/keyrings/yarn.gpg
+
 ENV DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-c"]
 
