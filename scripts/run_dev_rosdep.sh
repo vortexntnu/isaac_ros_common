@@ -20,9 +20,26 @@ if [[ ! -f "${RUN_DEV_SCRIPT}" ]]; then
     exit 1
 fi
 
+# Parse -n/--name before forwarding remaining args to run_dev.sh
+CONTAINER_NAME_ARG=()
+PASSTHROUGH_ARGS=()
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -n | --name)
+            CONTAINER_NAME_ARG=(--container_name "$2")
+            shift 2
+            ;;
+        *)
+            PASSTHROUGH_ARGS+=("$1")
+            shift
+            ;;
+    esac
+done
+
 echo -e "${GREEN}Generating rosdep build workspace${RESET}"
 python3 "${COLLECT_SCRIPT}"
 
 exec "${RUN_DEV_SCRIPT}" \
     --image_key ros2_humble.deps.realsense \
-    "$@"
+    "${CONTAINER_NAME_ARG[@]}" \
+    "${PASSTHROUGH_ARGS[@]}"

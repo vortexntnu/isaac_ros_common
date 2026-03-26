@@ -44,7 +44,8 @@ fi
 ISAAC_ROS_DEV_DIR="${ISAAC_ROS_WS}"
 SKIP_IMAGE_BUILD=0
 VERBOSE=0
-VALID_ARGS=$(getopt -o hvd:i:ba: --long help,verbose,isaac_ros_dev_dir:,image_key:,skip_image_build,docker_arg: -- "$@")
+CONTAINER_NAME_OVERRIDE=""
+VALID_ARGS=$(getopt -o hvd:i:ba:n: --long help,verbose,isaac_ros_dev_dir:,image_key:,skip_image_build,docker_arg:,container_name: -- "$@")
 eval set -- "$VALID_ARGS"
 while [ : ]; do
   case "$1" in
@@ -62,6 +63,10 @@ while [ : ]; do
         ;;
     -a | --docker_arg)
         DOCKER_ARGS+=("$2")
+        shift 2
+        ;;
+    -n | --container_name)
+        CONTAINER_NAME_OVERRIDE="$2"
         shift 2
         ;;
     -v | --verbose)
@@ -181,6 +186,9 @@ if [[ ! -z "$CONFIG_CONTAINER_NAME_SUFFIX" ]] ; then
     BASE_NAME="$BASE_NAME-$CONFIG_CONTAINER_NAME_SUFFIX"
 fi
 CONTAINER_NAME="$BASE_NAME-container"
+if [[ ! -z "$CONTAINER_NAME_OVERRIDE" ]]; then
+    CONTAINER_NAME="$CONTAINER_NAME_OVERRIDE"
+fi
 
 # Remove any exited containers.
 if [ "$(docker ps -a --quiet --filter status=exited --filter name=$CONTAINER_NAME)" ]; then
