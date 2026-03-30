@@ -5,6 +5,14 @@
 # --- Spinnaker SDK ---
 -v /opt/spinnaker:/opt/spinnaker
 
+# --- Norbit Sonar ---
+-v /usr/local/include/norbit_fls_driver.hpp:/usr/local/include/norbit_fls_driver.hpp
+-v /usr/local/include/norbit_fls_conversions.hpp:/usr/local/include/norbit_fls_conversions.hpp
+-v /usr/local/include/norbit_fls_messages.hpp:/usr/local/include/norbit_fls_messages.hpp
+-v /usr/local/lib/cmake/norbit_fls_driver:/usr/local/lib/cmake/norbit_fls_driver
+-v /usr/local/lib/libnorbit_fls_driver.a:/usr/local/lib/libnorbit_fls_driver.a
+-v /usr/local/lib/libnorbit_fls_conversions.a:/usr/local/lib/libnorbit_fls_conversions.a
+
 # --- Device + USB access (required for both cameras) ---
 -v /dev:/dev
 -v /dev/bus/usb:/dev/bus/usb
