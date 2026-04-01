@@ -11,3 +11,10 @@
 
 # -- Environment Variables ---
 --env=LD_LIBRARY_PATH=/usr/local/zed/lib:/opt/spinnaker/lib
+
+# --- User Configurations ---
+-v ~/.bashrc:/home/admin/.bashrc
+
+# --- Realsense SDK ---
+# Mount RealSense configuration file if it exists
+-v ${HOME}/.realsense-config.json:/home/admin/.realsense-config.json
