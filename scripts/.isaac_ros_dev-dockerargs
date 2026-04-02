@@ -9,8 +9,17 @@
 -v /dev:/dev
 -v /dev/bus/usb:/dev/bus/usb
 
+# --- Norbit Sonar ---
+-v /usr/local/include/norbit_fls_conversions.hpp:/usr/local/include/norbit_fls_conversions.hpp
+-v /usr/local/include/norbit_fls_driver.hpp:/usr/local/include/norbit_fls_driver.hpp
+-v /usr/local/include/norbit_fls_messages.hpp:/usr/local/include/norbit_fls_messages.hpp
+
 # -- Environment Variables ---
 --env=LD_LIBRARY_PATH=/usr/local/zed/lib:/opt/spinnaker/lib
+
+# --- DRI render device access (required for nvvidconv / GStreamer HW encoding) ---
+# GID 104 = render group on Jetson host (owns /dev/dri/renderD128, renderD129)
+--group-add 104
 
 # --- User Configurations ---
 -v ~/.bashrc:/home/admin/.bashrc
