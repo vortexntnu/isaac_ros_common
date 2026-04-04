@@ -35,12 +35,12 @@ RUN --mount=type=cache,target=/var/cache/apt \
     && git clone ${REALSENSE_ROS_GIT_URL} -b ${REALSENSE_ROS_VERSION} \
     && cd realsense-ros && source ${ROS_ROOT}/setup.bash \
     && cd realsense2_camera_msgs && bloom-generate rosdebian && fakeroot debian/rules binary \
-    && cd ../ && apt-get install -y ./*.deb && rm ./*.deb \
+    && cd ../ && apt-get install -y --allow-downgrades ./*.deb && rm ./*.deb \
     && cd realsense2_description && bloom-generate rosdebian && fakeroot debian/rules binary \
-    && cd ../ && apt-get install -y ./*.deb && rm ./*.deb \
+    && cd ../ && apt-get install -y --allow-downgrades ./*.deb && rm ./*.deb \
     && cd realsense2_camera && bloom-generate rosdebian \
     && sed -i 's/dh_shlibdeps -/dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info -/g' debian/rules \
     && sed -i 's/ros-humble-librealsense2, //g' debian/control \
     && fakeroot debian/rules binary \
-    && cd ../ && apt-get install -y ./*.deb && rm ./*.deb \
+    && cd ../ && apt-get install -y --allow-downgrades ./*.deb && rm ./*.deb \
     && cd ../ && rm -Rf realsense-ros
