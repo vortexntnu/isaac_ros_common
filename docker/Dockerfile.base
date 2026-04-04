@@ -60,6 +60,9 @@ RUN --mount=type=cache,target=/var/cache/apt \
     unzip \
     vim \
     wget \
+    net-tools \
+    tmux \
+    network-manager \
     zlib1g-dev
 
 # Python basics

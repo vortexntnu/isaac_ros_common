@@ -9,18 +9,36 @@
 -v /dev:/dev
 -v /dev/bus/usb:/dev/bus/usb
 
-# --- Norbit Sonar ---
--v /usr/local/include/norbit_fls_conversions.hpp:/usr/local/include/norbit_fls_conversions.hpp
--v /usr/local/include/norbit_fls_driver.hpp:/usr/local/include/norbit_fls_driver.hpp
--v /usr/local/include/norbit_fls_messages.hpp:/usr/local/include/norbit_fls_messages.hpp
+# --- NM CLI ---
+-v /run/dbus:/run/dbus
 
-# --- MRU
--v /usr/local/include/kongsberg_mru_driver.hpp:/usr/local/include/kongsberg_mru_driver.hpp
--v /usr/local/include/kongsberg_mru_message.hpp.hpp:/usr/local/include/kongsberg_mru_message.hpp.hpp
+# --- Norbit Sonar ---
+-v /usr/local/include/norbit_fls_conversions.hpp:/usr/local/include/norbit_fls_conversions.hpp:ro
+-v /usr/local/include/norbit_fls_driver.hpp:/usr/local/include/norbit_fls_driver.hpp:ro
+-v /usr/local/include/norbit_fls_messages.hpp:/usr/local/include/norbit_fls_messages.hpp:ro
+
+-v /usr/local/lib/libnorbit_fls_conversions.so:/usr/local/lib/libnorbit_fls_conversions.so:ro
+-v /usr/local/lib/libnorbit_fls_conversions.a:/usr/local/lib/libnorbit_fls_conversions.a:ro
+-v /usr/local/lib/libnorbit_fls_driver.so:/usr/local/lib/libnorbit_fls_driver.so:ro
+-v /usr/local/lib/libnorbit_fls_driver.a:/usr/local/lib/libnorbit_fls_driver.a:ro
+
+-v /usr/local/lib/cmake/norbit_fls_driver:/usr/local/lib/cmake/norbit_fls_driver:ro
+
+# --- MRU ---
+-v /usr/local/include/kongsberg_mru_driver.hpp:/usr/local/include/kongsberg_mru_driver.hpp:ro
+-v /usr/local/include/kongsberg_mru_message.hpp:/usr/local/include/kongsberg_mru_message.hpp:ro
+
+-v /usr/local/lib/libmru_driver.a:/usr/local/lib/libmru_driver.a:ro
+
+-v /usr/local/lib/cmake/mru_driver:/usr/local/lib/cmake/mru_driver:ro
 
 # --- Nortek DVL ---
--v /usr/local/include/nortek_nucleus_driver.hpp:/usr/local/include/nortek_nucleus_driver.hpp
--v /usr/local/include/nortek_nucleus_messages.hpp:/usr/local/include/nortek_nucleus_messages.hpp
+-v /usr/local/include/nortek_nucleus_driver.hpp:/usr/local/include/nortek_nucleus_driver.hpp:ro
+-v /usr/local/include/nortek_nucleus_messages.hpp:/usr/local/include/nortek_nucleus_messages.hpp:ro
+
+-v /usr/local/lib/libnortek_nucleus_driver.a:/usr/local/lib/libnortek_nucleus_driver.a:ro
+
+-v /usr/local/lib/cmake/nortek_nucleus_driver:/usr/local/lib/cmake/nortek_nucleus_driver:ro
 
 # -- Environment Variables ---
 --env=LD_LIBRARY_PATH=/usr/local/zed/lib:/opt/spinnaker/lib
