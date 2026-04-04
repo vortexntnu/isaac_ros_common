@@ -14,6 +14,14 @@
 -v /usr/local/include/norbit_fls_driver.hpp:/usr/local/include/norbit_fls_driver.hpp
 -v /usr/local/include/norbit_fls_messages.hpp:/usr/local/include/norbit_fls_messages.hpp
 
+# --- MRU
+-v /usr/local/include/kongsberg_mru_driver.hpp:/usr/local/include/kongsberg_mru_driver.hpp
+-v /usr/local/include/kongsberg_mru_message.hpp.hpp:/usr/local/include/kongsberg_mru_message.hpp.hpp
+
+# --- Nortek DVL ---
+-v /usr/local/include/nortek_nucleus_driver.hpp:/usr/local/include/nortek_nucleus_driver.hpp
+-v /usr/local/include/nortek_nucleus_messages.hpp:/usr/local/include/nortek_nucleus_messages.hpp
+
 # -- Environment Variables ---
 --env=LD_LIBRARY_PATH=/usr/local/zed/lib:/opt/spinnaker/lib
 
