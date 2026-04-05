@@ -53,3 +53,7 @@
 # --- Realsense SDK ---
 # Mount RealSense configuration file if it exists
 -v ${HOME}/.realsense-config.json:/home/admin/.realsense-config.json
+
+# --- FastDDS multi-interface profile (eno1 + RealSense NIC) ---
+-e FASTRTPS_DEFAULT_PROFILES_FILE=/workspaces/isaac_ros-dev/src/perception-auv/config/fastdds_multi_interface.xml
+-e RMW_IMPLEMENTATION=rmw_fastrtps_cpp
