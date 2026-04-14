@@ -399,7 +399,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     && (cd /tmp && tar xzf boost.tar.gz) \
     && cd /tmp/boost_1_80_0 \
     && ./bootstrap.sh --prefix=/usr \
-    && ./b2 install \
+    && ./b2 install --without-python \
     && rm -rf /tmp/boost*
 
 

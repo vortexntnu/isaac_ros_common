@@ -1,0 +1,79 @@
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
+ENV DEBIAN_FRONTEND=noninteractive
+SHELL ["/bin/bash", "-c"]
+
+ARG TARGETARCH
+
+# Remove broken Yarn repo inherited from base
+RUN rm -f /etc/apt/sources.list.d/yarn.list
+
+# Isaac ROS apt packages
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y --no-install-recommends \
+      ros-humble-isaac-ros-image-proc \
+      ros-humble-isaac-ros-dnn-image-encoder \
+      ros-humble-isaac-ros-tensor-rt \
+      ros-humble-isaac-ros-yolov8 \
+      ros-humble-isaac-ros-unet \
+      ros-humble-isaac-ros-stereo-image-proc \
+      ros-humble-isaac-ros-zed \
+      ros-humble-isaac-ros-h264-encoder \
+      ros-humble-isaac-ros-examples
+
+# Install workspace rosdeps.
+# `build/src/` is pre-staged by collect_rosdep_workspace.py and contains
+# ONLY package.xml files (one per directory), so this layer is invalidated
+# only when a package.xml changes — not on every source edit.
+WORKDIR /workspaces/isaac_ros-dev
+COPY build/src/ ./src/
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && \
+    rosdep install \
+      --from-paths src \
+      --ignore-src \
+      --rosdistro humble \
+      -r -y
+
+# GStreamer
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y --no-install-recommends \
+      libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+      gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
+      gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly \
+      gstreamer1.0-tools pkg-config
+
+# Pin NumPy FIRST so no downstream CMake export captures numpy 2.x paths
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip3 install "numpy==1.23.5"
+
+# Python stack (repeat the numpy pin to block silent upgrades by ultralytics/roboflow)
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip3 install \
+      ipykernel jupyter roboflow ultralytics \
+      "numpy==1.23.5" \
+      "requests>=2.25.1,<2.29.0" \
+      "urllib3>=1.25.11,<2.0.0" \
+      "requests-toolbelt>=0.9.1,<1.0.0"
+
+# Platform-specific wheels. --no-deps prevents them dragging in numpy 2.x.
+# Final assert fails the build loudly if anything silently upgraded numpy.
+RUN --mount=type=cache,target=/root/.cache/pip \
+    if [ "${TARGETARCH}" = "arm64" ]; then \
+      pip3 install --no-deps \
+        https://github.com/ultralytics/assets/releases/download/v0.0.0/onnxruntime_gpu-1.20.0-cp310-cp310-linux_aarch64.whl \
+        https://github.com/ultralytics/assets/releases/download/v0.0.0/torchvision-0.20.0a0+afc54f7-cp310-cp310-linux_aarch64.whl ; \
+    else \
+      pip3 install onnxruntime-gpu==1.20.0 torchvision ; \
+    fi && \
+    python3 -c "import numpy; assert numpy.__version__.startswith('1.23'), 'numpy was upgraded to ' + numpy.__version__"
+
+# GStreamer/GLib static-TLS workaround for Jetson
+ENV GLIBC_TUNABLES=glibc.rtld.optional_static_tls=2000000
+ENV LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libgomp.so.1
+
+ENV MODEL_PATH=/app/models/objects_performance_3.2.model
